@@ -26,7 +26,11 @@ public class MachineDownEvent extends Event {
 		
 		//schedule vm up plan - spin up on any available machine
 		//time based off of manual or not
-		t.addEvent(new VmUpEvent(failedMachine), SimulationManager.VIRTUAL_REBOOT_TIME);
+		while(failedMachine.getVirtualMachines().size()>0){
+			VirtualMachine vm = failedMachine.getVirtualMachines().get(0);
+			t.addEvent(new VmUpEvent(failedMachine,vm), SimulationManager.VIRTUAL_REBOOT_TIME);
+			failedMachine.removeVirtualMachine(vm);
+		}
 		
 		//schedule machine up plan
 		t.addEvent(new MachineUpEvent(failedMachine), SimulationManager.PHYSICAL_REBOOT_TIME);
