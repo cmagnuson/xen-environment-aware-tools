@@ -6,31 +6,30 @@ import com.magnuson.xen.*;
 public class VmUpEvent extends Event {
 
 	private PhysicalMachine pm;
+	private VirtualMachine vm;
 
-	public VmUpEvent(PhysicalMachine pm){
+	public VmUpEvent(PhysicalMachine pm, VirtualMachine vm){
 		this.pm = pm;
+		this.vm = vm;
 	}
 
 	@Override
 	public void execute(Timeline t) {
-		while(pm.getVirtualMachines().size()>0){
-			VirtualMachine vm = pm.getVirtualMachines().get(0);
+		//it is on an active machine, must have been rebooted between when this was fired and now
+		if(SimulationManager.xq.getPhysicalMachines().contains(pm)){
+			SimulationManager.xq.addVirtualMachine(vm, pm);
+			return;
+		}
 
-			//it is on an active machine, must have been rebooted between when this was fired and now
-			if(SimulationManager.xq.getPhysicalMachines().contains(pm)){
-				return;
+		//this machine is still down, move VM elsewhere
+		else{
+			if(SimulationManager.xq.getPhysicalMachines().size()<1){
+				//no available physical machines, wait for one to be up
+				t.addEvent(new VmUpEvent(pm, vm), SimulationManager.VIRTUAL_REBOOT_TIME);
 			}
-			
-			//this machine is still down, move VM elsewhere
 			else{
-				if(SimulationManager.xq.getPhysicalMachines().size()<1){
-					//no available physical machines, wait for one to be up
-					t.addEvent(new VmUpEvent(pm), SimulationManager.VIRTUAL_REBOOT_TIME);
-				}
-				else{
-					//move to first available physical machine
-					SimulationManager.xq.migrateVirtualMachine(vm, pm, SimulationManager.xq.getPhysicalMachines().get(0));
-				}
+				//move to first available physical machine
+				SimulationManager.xq.migrateVirtualMachine(vm, pm, SimulationManager.xq.getPhysicalMachines().get(0));
 			}
 		}
 	}

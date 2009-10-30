@@ -3,10 +3,10 @@ package com.magnuson.xen.faulttolerence.simulation;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
 import com.magnuson.xen.*;
 import com.magnuson.xen.faulttolerence.*;
 import com.magnuson.xen.faulttolerence.simulation.events.*;
+import java.io.*;
 
 public class SimulationManager {
 
@@ -53,7 +53,20 @@ public class SimulationManager {
 		Statistics unmanaged = t.executeAll();
 		
 		//write unmanaged and managed to disk
-		//TODO: write stats to disk
+		File ff = new File("managed.csv");
+		File uf = new File("unmanaged.csv");
+		try{
+		FileWriter fw = new FileWriter(ff);
+		fw.write(managed.getCsv());
+		fw.close();
+		
+		fw = new FileWriter(uf);
+		fw.write(unmanaged.getCsv());
+		fw.close();
+		}
+		catch(IOException ioe){
+			log.error("IO Exception Writing Statistics to Disk", ioe);
+		}
 	}
 
 	//set up initial systems, all vms and machines live and properly balanced
