@@ -5,6 +5,7 @@ public class VirtualMachine {
 	private String MACAddress;
 	private String physicalMachineMACAddress;
 	
+	@SuppressWarnings("unused")
 	private VirtualMachine(){}
 	public VirtualMachine(String MACAddress){
 		this.MACAddress = MACAddress;

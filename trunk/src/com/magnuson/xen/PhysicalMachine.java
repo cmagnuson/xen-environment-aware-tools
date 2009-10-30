@@ -7,6 +7,7 @@ public class PhysicalMachine {
 	private String MACAddress;
 	private List<VirtualMachine> virtualMachines = new LinkedList<VirtualMachine>();
 	
+	@SuppressWarnings("unused")
 	private PhysicalMachine(){}
 	public PhysicalMachine(String MACAddress){
 		this.MACAddress = MACAddress;

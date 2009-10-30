@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 
 public class FaultTolerenceBalancerTests extends TestCase {
 
-	private static Logger log = Logger.getLogger(FaultTolerenceBalancerTests.class);
+	static Logger log = Logger.getLogger(FaultTolerenceBalancerTests.class);
 		
 	private XenQueryHandlerInterface xq;
 	private FaultTolerentQueryInterface ft;
