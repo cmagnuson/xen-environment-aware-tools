@@ -17,7 +17,12 @@ public class Timeline {
 
 	public void addEvent(Event e, long scheduledOffset){
 		e.setExecutionTime(currentTime+scheduledOffset);
-		timeline.add(e);
+		if(timeline.contains(e)){
+			return;
+		}
+		else{
+			timeline.add(e);
+		}
 	}
 
 	//returns true when done executing all events to TerminalEvent
@@ -29,7 +34,7 @@ public class Timeline {
 		}
 
 		log.debug("Executing: "+e);
-		
+
 		currentTime = e.getExecutionTime();
 		updateStatistics();
 
@@ -47,7 +52,7 @@ public class Timeline {
 			executeAll();
 		return statistics;
 	}
-	
+
 	private void updateStatistics(){
 		MomentStatistics ms = new MomentStatistics();
 		ms.setMachinesUp(SimulationManager.xq.getVirtualMachines().size());
