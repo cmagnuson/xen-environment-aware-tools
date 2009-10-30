@@ -8,6 +8,7 @@ public class MigrationDecision {
 	private PhysicalMachine physicalSource;
 	private PhysicalMachine physicalDestination;
 	
+	@SuppressWarnings("unused")
 	private MigrationDecision(){};
 	public MigrationDecision(VirtualMachine vm, PhysicalMachine src, PhysicalMachine dest){
 		virtualMachine = vm;

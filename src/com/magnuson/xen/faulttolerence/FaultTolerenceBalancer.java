@@ -12,6 +12,7 @@ public class FaultTolerenceBalancer {
 	private FaultTolerentQueryInterface faultQuery;
 	private XenQueryHandlerInterface xenQuery;
 
+	@SuppressWarnings("unused")
 	private FaultTolerenceBalancer(){}
 
 	public FaultTolerenceBalancer(FaultTolerentQueryInterface fq, XenQueryHandlerInterface xq){
@@ -127,7 +128,7 @@ public class FaultTolerenceBalancer {
 	private int countLiveVms(FaultSet fs){
 		int count = 0;
 		for(VirtualMachine vm: fs.getVirtualMachines()){
-			if(xenQuery.getVirtualMachine(vm.getMACAddress())!=null){
+			if(xenQuery.getVirtualMachine(vm.getMACAddress())!=null && xenQuery.getPhysicalMachine(vm.getPhysicalMachineMACAddress())!=null){
 				count++;
 			}
 		}
