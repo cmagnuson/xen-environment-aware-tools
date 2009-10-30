@@ -1,5 +1,9 @@
 package com.magnuson.xen.faulttolerence.simulation;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import com.magnuson.xen.*;
 import com.magnuson.xen.faulttolerence.*;
 import com.magnuson.xen.faulttolerence.simulation.events.*;
@@ -14,12 +18,13 @@ public class SimulationManager {
 	
 	public static final long RUNNING_TIME = 3*YEARS;
 	
-	public static final int TOTAL_VMS = 10;
-	public static final int TOTAL_PHYSICAL_MACHINES = 5;
+	public static final int TOTAL_VMS = 5;
+	public static final int TOTAL_PHYSICAL_MACHINES = 3;
 	public static final int PHYSICAL_REBOOT_TIME = 10*MINUTES;
 	public static final int VIRTUAL_REBOOT_TIME = 45*SECONDS;
 	public static final int AUTOMATIC_MIGRATE_POLL_RATE = 30*SECONDS;
-	public static final int MANUAL_MIGRATE_POLL_RATE = 1*DAYS;
+	public static final int MANUAL_MIGRATE_POLL_RATE = 30*DAYS;
+	public static final int MEAN_HARDWARE_UPTIME = 200*DAYS;
 	
 	
 	public static XenQueryHandlerInterface xq = new SimulatedQueryHandler();
@@ -27,19 +32,28 @@ public class SimulationManager {
 	public static FaultTolerenceBalancer balancer = new FaultTolerenceBalancer(ft,xq);
 	public static boolean faultManagingEnabled = true;
 	
+	static Logger log = Logger.getLogger(SimulationManager.class);
+	
 	public static void main(String[] args) {
+		initLogging();
+		
+		log.info("Beginning Managed Run");
 		initData();
 		Timeline t = new Timeline();
 		t.addEvent(new MachineDownEvent(), 0);
 		t.addEvent(new TerminalEvent(), RUNNING_TIME);
-		t.executeAll();
+		Statistics managed = t.executeAll();
 		
+		log.info("Beginning Unmanaged Run");
+		faultManagingEnabled = false;
 		initData();
 		t = new Timeline();
 		t.addEvent(new MachineDownEvent(), 0);
 		t.addEvent(new TerminalEvent(), RUNNING_TIME);
-		t.executeAll();
+		Statistics unmanaged = t.executeAll();
 		
+		//write unmanaged and managed to disk
+		//TODO: write stats to disk
 	}
 
 	//set up initial systems, all vms and machines live and properly balanced
@@ -65,4 +79,8 @@ public class SimulationManager {
 		balancer.calculateAndMigrate();
 	}
 
+	public static void initLogging(){
+		BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
+	}
 }

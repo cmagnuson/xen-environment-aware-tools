@@ -41,7 +41,10 @@ public class FaultTolerenceBalancer {
 		//tally number of vms in set per machine
 		for(VirtualMachine vm: fs.getVirtualMachines()){
 			PhysicalMachine pm = xenQuery.getPhysicalMachine(vm.getPhysicalMachineMACAddress());
-			currentMapping.put(pm, currentMapping.get(pm)+1);
+			//add to currently assigned mapping if machine is up
+			if(pm!=null){
+				currentMapping.put(pm, currentMapping.get(pm)+1);
+			}
 		}
 
 		int freeMachines = xenQuery.getPhysicalMachines().size();

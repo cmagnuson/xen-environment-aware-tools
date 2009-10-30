@@ -2,7 +2,7 @@ package com.magnuson.xen.faulttolerence.simulation.events;
 
 import com.magnuson.xen.faulttolerence.simulation.*;
 
-public abstract class Event {
+public abstract class Event implements Comparable<Event> {
 
 	private long executionTime = 0;
 	public void setExecutionTime(long time){
@@ -11,10 +11,10 @@ public abstract class Event {
 	public long getExecutionTime(){
 		return executionTime;
 	}
-	
+
 	public int compareTo(Event e){
 		return (int)(executionTime-e.getExecutionTime());
 	}
-	
+
 	public abstract void execute(Timeline t);
 }
