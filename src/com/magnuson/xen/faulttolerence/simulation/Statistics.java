@@ -23,12 +23,16 @@ public class Statistics {
 		return header+body;
 	}
 
+	//TODO: clean this up, doesn't appear to be reporting correct numbers
 	public double getAvgVmUptime(){
 		long totalTime = SimulationManager.RUNNING_TIME;
 		double runningTotal = 0;
 		
 		long lastTime = 0;
 		for(long time: stats.keySet()){
+			if(time==0){
+				continue;
+			}
 			double ratio = (time-lastTime)/(double)totalTime;
 			log.trace(ratio+" "+lastTime+" "+time);
 			runningTotal+=ratio*(stats.get(lastTime).getVmsUp()/SimulationManager.TOTAL_VMS);
