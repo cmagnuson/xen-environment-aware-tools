@@ -10,21 +10,21 @@ import java.io.*;
 
 public class SimulationManager {
 
-	public static final int SECONDS = 1;
-	public static final int MINUTES = SECONDS*60;
-	public static final int HOURS = MINUTES*60;
-	public static final int DAYS = HOURS*24;
-	public static final int YEARS = DAYS*365;
+	public static final long SECONDS = 1;
+	public static final long MINUTES = SECONDS*60;
+	public static final long HOURS = MINUTES*60;
+	public static final long DAYS = HOURS*24;
+	public static final long YEARS = DAYS*365;
 	
-	public static final long RUNNING_TIME = 3*YEARS;
+	public static final long RUNNING_TIME = 1*YEARS;
 	
 	public static final int TOTAL_VMS = 5;
 	public static final int TOTAL_PHYSICAL_MACHINES = 3;
-	public static final int PHYSICAL_REBOOT_TIME = 10*MINUTES;
-	public static final int VIRTUAL_REBOOT_TIME = 45*SECONDS;
-	public static final int AUTOMATIC_MIGRATE_POLL_RATE = 30*SECONDS;
-	public static final int MANUAL_MIGRATE_POLL_RATE = 30*DAYS;
-	public static final int MEAN_HARDWARE_UPTIME = 200*DAYS;
+	public static final long PHYSICAL_REBOOT_TIME = 10*MINUTES;
+	public static final long VIRTUAL_REBOOT_TIME = 45*SECONDS;
+	public static final long AUTOMATIC_MIGRATE_POLL_RATE = 30*SECONDS;
+	public static final long MANUAL_MIGRATE_POLL_RATE = 30*DAYS;
+	public static final long MEAN_HARDWARE_UPTIME = 200*DAYS;
 	
 	
 	public static XenQueryHandlerInterface xq = new SimulatedQueryHandler();
@@ -34,6 +34,8 @@ public class SimulationManager {
 	
 	static Logger log = Logger.getLogger(SimulationManager.class);
 	
+	//TODO: find balancing bug that is causing infinite loop on certain simulation runs
+	
 	public static void main(String[] args) {
 		initLogging();
 		
@@ -41,7 +43,6 @@ public class SimulationManager {
 		initData();
 		Timeline t = new Timeline();
 		t.addEvent(new MachineDownEvent(), 0);
-		t.addEvent(new TerminalEvent(), RUNNING_TIME);
 		Statistics managed = t.executeAll();
 		
 		log.info("Beginning Unmanaged Run");
@@ -49,7 +50,6 @@ public class SimulationManager {
 		initData();
 		t = new Timeline();
 		t.addEvent(new MachineDownEvent(), 0);
-		t.addEvent(new TerminalEvent(), RUNNING_TIME);
 		Statistics unmanaged = t.executeAll();
 		
 		//write unmanaged and managed to disk
@@ -67,6 +67,9 @@ public class SimulationManager {
 		catch(IOException ioe){
 			log.error("IO Exception Writing Statistics to Disk", ioe);
 		}
+		
+		log.info("Managed VM Uptime: "+managed.getAvgVmUptime());
+		log.info("Unmanaged VM Uptime: "+unmanaged.getAvgVmUptime());
 	}
 
 	//set up initial systems, all vms and machines live and properly balanced
