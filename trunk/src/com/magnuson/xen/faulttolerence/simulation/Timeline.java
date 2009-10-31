@@ -18,44 +18,39 @@ public class Timeline {
 	public void addEvent(Event e, long scheduledOffset){
 		e.setExecutionTime(currentTime+scheduledOffset);
 		if(timeline.contains(e)){
+			log.trace("Duplicate event added: "+e);
+			return;
+		}
+		if(e.getExecutionTime()>SimulationManager.RUNNING_TIME){
+			log.trace("Event added after end of the world: "+e);
 			return;
 		}
 		else{
+			log.trace("Adding event to timeline: "+e);
 			timeline.add(e);
 		}
 	}
 
-	//returns true when done executing all events to TerminalEvent
-	public boolean executeNextEvent(){
+	private void executeNextEvent(){
 		Event e = timeline.poll();
-		if(e==null){
-			log.error("Out of events in timeline, THIS SHOULD NEVER HAPPEN!");
-			return false;
-		}
 
 		log.debug("Executing: "+e);
-
+		e.execute(this);
+		
 		currentTime = e.getExecutionTime();
 		updateStatistics();
-
-		if(!(e instanceof TerminalEvent)){
-			e.execute(this);
-			return false;
-		}
-		else{
-			return true;
-		}
 	}
 
 	public Statistics executeAll(){
-		if(executeNextEvent()==false)
-			executeAll();
+		while(timeline.size()>0){
+			executeNextEvent();
+		}
 		return statistics;
 	}
 
 	private void updateStatistics(){
 		MomentStatistics ms = new MomentStatistics();
-		ms.setMachinesUp(SimulationManager.xq.getVirtualMachines().size());
+		ms.setMachinesUp(SimulationManager.xq.getPhysicalMachines().size());
 		ms.setMachinesDown(SimulationManager.TOTAL_PHYSICAL_MACHINES-ms.getMachinesUp());
 		int vmsUp = 0;
 		for(PhysicalMachine pm: SimulationManager.xq.getPhysicalMachines()){
