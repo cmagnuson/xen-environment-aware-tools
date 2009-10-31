@@ -35,6 +35,8 @@ public class SimulationManager {
 	static Logger log = Logger.getLogger(SimulationManager.class);
 	
 	//TODO: find balancing bug that is causing infinite loop on certain simulation runs
+	//TODO: figure out how to enforce ordering on 
+	//TODO: figure out why machine up event runs every REBOOT_TIME seconds
 	
 	public static void main(String[] args) {
 		initLogging();
@@ -43,6 +45,7 @@ public class SimulationManager {
 		initData();
 		Timeline t = new Timeline();
 		t.addEvent(new MachineDownEvent(), 0);
+		t.addEvent(new TerminalEvent(), RUNNING_TIME);
 		Statistics managed = t.executeAll();
 		
 		log.info("Beginning Unmanaged Run");
@@ -50,6 +53,7 @@ public class SimulationManager {
 		initData();
 		t = new Timeline();
 		t.addEvent(new MachineDownEvent(), 0);
+		t.addEvent(new TerminalEvent(), RUNNING_TIME);
 		Statistics unmanaged = t.executeAll();
 		
 		//write unmanaged and managed to disk
