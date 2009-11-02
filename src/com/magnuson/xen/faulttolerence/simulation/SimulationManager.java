@@ -16,15 +16,18 @@ public class SimulationManager {
 	public static final long DAYS = HOURS*24;
 	public static final long YEARS = DAYS*365;
 	
-	public static final long RUNNING_TIME = 1*YEARS;
+	public static final long RUNNING_TIME = 100*YEARS;
 	
 	public static final int TOTAL_VMS = 5;
-	public static final int TOTAL_PHYSICAL_MACHINES = 3;
-	public static final long PHYSICAL_REBOOT_TIME = 10*MINUTES;
-	public static final long VIRTUAL_REBOOT_TIME = 45*SECONDS;
+	public static final int TOTAL_PHYSICAL_MACHINES = 2;
+	public static final long PHYSICAL_REBOOT_TIME = 1*HOURS;
+	public static final long AVG_VIRTUAL_REBOOT_TIME = 3*MINUTES;
 	public static final long AUTOMATIC_MIGRATE_POLL_RATE = 30*SECONDS;
-	public static final long MANUAL_MIGRATE_POLL_RATE = 30*DAYS;
-	public static final long MEAN_HARDWARE_UPTIME = 200*DAYS;
+	public static final long MANUAL_MIGRATE_POLL_RATE = 5*YEARS;
+	public static final long MEAN_HARDWARE_UPTIME = 42*DAYS;
+	
+	//for 99.9% uptime average (assuming only server failure) is 8.76 hours down per year
+	//to simulate, lets try reboot_time of 1 hour, is 42 days between failures
 	
 	
 	public static XenQueryHandlerInterface xq = new SimulatedQueryHandler();
@@ -35,8 +38,6 @@ public class SimulationManager {
 	static Logger log = Logger.getLogger(SimulationManager.class);
 	
 	//TODO: find balancing bug that is causing infinite loop on certain simulation runs
-	//TODO: figure out how to enforce ordering on 
-	//TODO: figure out why machine up event runs every REBOOT_TIME seconds
 	
 	public static void main(String[] args) {
 		initLogging();
@@ -72,8 +73,12 @@ public class SimulationManager {
 			log.error("IO Exception Writing Statistics to Disk", ioe);
 		}
 		
-		log.info("Managed VM Uptime: "+managed.getAvgVmUptime());
-		log.info("Unmanaged VM Uptime: "+unmanaged.getAvgVmUptime());
+		log.info("Managed VM Uptime: "+managed.getAvgVmUptime()*100);
+		log.info("Unmanaged VM Uptime: "+unmanaged.getAvgVmUptime()*100);
+		
+		log.info("Managed Service Uptime: "+managed.getAvgServiceUptime()*100);
+		log.info("Unmanaged Service Uptime: "+unmanaged.getAvgServiceUptime()*100);
+		log.info("Difference: "+(managed.getAvgServiceUptime()-unmanaged.getAvgServiceUptime())*100);
 	}
 
 	//set up initial systems, all vms and machines live and properly balanced

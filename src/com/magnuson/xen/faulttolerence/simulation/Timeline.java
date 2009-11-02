@@ -13,6 +13,8 @@ public class Timeline {
 	private long currentTime = 0;
 	private Statistics statistics = new Statistics();
 
+	static int eventNum = 0;
+	
 	public Timeline(){}
 
 	public void addEvent(Event e, long scheduledOffset){
@@ -31,13 +33,14 @@ public class Timeline {
 		}
 	}
 
-	private void executeNextEvent(){
+	private void executeNextEvent(){		
 		Event e = timeline.poll();
+		currentTime = e.getExecutionTime();
 
-		log.debug("Executing: "+e);
+		eventNum++;
+		log.debug(eventNum+" Executing: "+e);
 		e.execute(this);
 		
-		currentTime = e.getExecutionTime();
 		updateStatistics();
 	}
 

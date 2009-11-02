@@ -8,6 +8,8 @@ public class MachineDownEvent extends Event {
 	@Override
 	public void execute(Timeline t) {
 
+		//TODO: remove VMS from failed machine, make VMUpEvent for them which assigns to any machine, same if back up, none if they are already assigned
+
 		//bring down a machine if there is one available
 		if(SimulationManager.xq.getPhysicalMachines().size()>0){
 			//pick machine at random and remove
@@ -31,7 +33,7 @@ public class MachineDownEvent extends Event {
 			//time based off of manual or not
 			while(failedMachine.getVirtualMachines().size()>0){
 				VirtualMachine vm = failedMachine.getVirtualMachines().get(0);
-				t.addEvent(new VmUpEvent(failedMachine,vm), SimulationManager.VIRTUAL_REBOOT_TIME);
+				t.addEvent(new VmUpEvent(failedMachine,vm), (long)(Math.random()*(double)SimulationManager.AVG_VIRTUAL_REBOOT_TIME*2));
 				failedMachine.removeVirtualMachine(vm);
 			}
 
@@ -40,8 +42,10 @@ public class MachineDownEvent extends Event {
 		}
 
 		//schedule next machine down plan
-		long nextMachineDownTime = (long)(Math.random()*2*SimulationManager.MEAN_HARDWARE_UPTIME);
-		t.addEvent(new MachineDownEvent(), nextMachineDownTime);
+		if(SimulationManager.xq.getPhysicalMachines().size()>0){
+			long nextMachineDownTime = (long)(Math.random()*2.0*(double)SimulationManager.MEAN_HARDWARE_UPTIME)*SimulationManager.xq.getPhysicalMachines().size();
+			t.addEvent(new MachineDownEvent(), nextMachineDownTime);
+		}
 	}
 
 	public String toString(){
