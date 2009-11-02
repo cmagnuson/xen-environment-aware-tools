@@ -25,7 +25,7 @@ public class VmUpEvent extends Event {
 		else{
 			if(SimulationManager.xq.getPhysicalMachines().size()<1){
 				//no available physical machines, wait for one to be up
-				t.addEvent(new VmUpEvent(pm, vm), SimulationManager.VIRTUAL_REBOOT_TIME);
+				t.addEvent(new VmUpEvent(pm, vm), (long)(2.0*Math.random()*(double)SimulationManager.AVG_VIRTUAL_REBOOT_TIME));
 			}
 			else{
 				//move to first available physical machine
@@ -35,7 +35,7 @@ public class VmUpEvent extends Event {
 	}
 
 	public String toString(){
-		return "VM Up Event - "+this.getExecutionTime();
+		return "VM Up Event - "+vm+" - "+this.getExecutionTime();
 	}
 
 }

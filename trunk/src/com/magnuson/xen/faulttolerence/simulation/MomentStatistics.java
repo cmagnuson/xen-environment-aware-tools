@@ -6,7 +6,24 @@ public class MomentStatistics {
 	private int vmsDown;
 	private int machinesUp;
 	private int machinesDown;
+
+	public MomentStatistics(){
+		super();
+		vmsUp = 0;
+		vmsDown = 0;
+		machinesUp = 0;
+		machinesDown = 0;
+	}
 	
+	public MomentStatistics(int vmsUp, int vmsDown, int machinesUp,
+			int machinesDown) {
+		super();
+		this.vmsUp = vmsUp;
+		this.vmsDown = vmsDown;
+		this.machinesUp = machinesUp;
+		this.machinesDown = machinesDown;
+	}
+		
 	public int getVmsUp() {
 		return vmsUp;
 	}

@@ -5,9 +5,9 @@ import org.apache.log4j.Logger;
 
 public class Statistics {
 
-	private Map<Long, MomentStatistics> stats = new TreeMap<Long, MomentStatistics>();
+	private TreeMap<Long, MomentStatistics> stats = new TreeMap<Long, MomentStatistics>();
 	static Logger log = Logger.getLogger(Statistics.class);
-
+	
 	public void addMomentStats(long time, MomentStatistics ms){
 		stats.put(time, ms);
 	}
@@ -23,20 +23,41 @@ public class Statistics {
 		return header+body;
 	}
 
-	//TODO: clean this up, doesn't appear to be reporting correct numbers
 	public double getAvgVmUptime(){
-		long totalTime = SimulationManager.RUNNING_TIME;
+		long totalTime = stats.lastKey();
 		double runningTotal = 0;
 		
-		long lastTime = 0;
 		for(long time: stats.keySet()){
 			if(time==0){
 				continue;
 			}
-			double ratio = (time-lastTime)/(double)totalTime;
-			log.trace(ratio+" "+lastTime+" "+time);
-			runningTotal+=ratio*(stats.get(lastTime).getVmsUp()/SimulationManager.TOTAL_VMS);
-			lastTime = time;
+			double ratio = (double)(time-stats.lowerKey(time))/(double)totalTime;
+			log.trace(ratio+" "+stats.lowerKey(time)+" "+time);
+			
+			MomentStatistics lower = stats.lowerEntry(time).getValue();
+			runningTotal+=ratio*((double)lower.getVmsUp()/(double)(lower.getVmsDown()+lower.getVmsUp()));
+		}
+		
+		return runningTotal;
+	}
+	
+	public double getAvgServiceUptime(){
+		long totalTime = stats.lastKey();
+		double runningTotal = 0;
+		
+		for(long time: stats.keySet()){
+			if(time==0){
+				continue;
+			}
+			double ratio = (double)(time-stats.lowerKey(time))/(double)totalTime;
+			log.trace(ratio+" "+stats.lowerKey(time)+" "+time);
+			
+			MomentStatistics lower = stats.lowerEntry(time).getValue();
+			if(lower.getVmsUp()==0){
+			}
+			else{
+				runningTotal+=ratio;
+			}
 		}
 		
 		return runningTotal;

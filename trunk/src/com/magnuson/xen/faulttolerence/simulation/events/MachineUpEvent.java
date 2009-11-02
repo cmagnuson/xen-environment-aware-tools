@@ -15,10 +15,15 @@ public class MachineUpEvent extends Event {
 	@Override
 	public void execute(Timeline t) {
 		SimulationManager.xq.addPhysicalMachine(pm);
+	
+		if(SimulationManager.xq.getPhysicalMachines().size()<2){
+			long nextMachineDownTime = (long)(Math.random()*2*SimulationManager.MEAN_HARDWARE_UPTIME);
+			t.addEvent(new MachineDownEvent(), nextMachineDownTime);
+		}
 	}
 
 	public String toString(){
-		return "Machine Up Event - "+this.getExecutionTime();
+		return "Machine Up Event - "+pm+" - "+this.getExecutionTime();
 	}
 
 }
