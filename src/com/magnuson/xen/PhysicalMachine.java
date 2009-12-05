@@ -2,7 +2,7 @@ package com.magnuson.xen;
 
 import java.util.*;
 
-public class PhysicalMachine {
+public class PhysicalMachine implements NetworkDevice {
 
 	private String MACAddress;
 	private List<VirtualMachine> virtualMachines = new LinkedList<VirtualMachine>();

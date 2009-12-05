@@ -13,12 +13,12 @@ public class Statistics {
 	}
 
 	public String getCsv(){
-		String header = "time,VM_UP,VM_DOWN,PCT_VM_UP,PM_UP,PM_DOWN,PCT_PM_UP\n";
+		String header = "TIME,VM_UP,VM_DOWN,PCT_VM_UP,PM_UP,PM_DOWN,PCT_PM_UP,EVENT\n";
 		String body = "";
 		for(long time: stats.keySet()){
 			MomentStatistics ms = stats.get(time);
 			body+=time+","+ms.getVmsUp()+","+ms.getVmsDown()+","+((double)ms.getVmsUp()/(double)SimulationManager.TOTAL_VMS)+","+ms.getMachinesUp()+","
-				+ms.getMachinesDown()+","+((double)ms.getMachinesUp()/(double)SimulationManager.TOTAL_PHYSICAL_MACHINES)+"\n";
+				+ms.getMachinesDown()+","+((double)ms.getMachinesUp()/(double)SimulationManager.TOTAL_PHYSICAL_MACHINES)+","+ms.getEvent()+"\n";
 		}
 		return header+body;
 	}
@@ -31,7 +31,8 @@ public class Statistics {
 			if(time==0){
 				continue;
 			}
-			double ratio = (double)(time-stats.lowerKey(time))/(double)totalTime;
+			
+			double ratio = (time-stats.lowerKey(time))/(double)totalTime;
 			log.trace(ratio+" "+stats.lowerKey(time)+" "+time);
 			
 			MomentStatistics lower = stats.lowerEntry(time).getValue();
@@ -41,7 +42,10 @@ public class Statistics {
 		return runningTotal;
 	}
 	
+	
 	public double getAvgServiceUptime(){
+		int minVmsUp = (int)Math.ceil((double)SimulationManager.TOTAL_VMS * SimulationManager.SERVICE_UP_PCT);
+		
 		long totalTime = stats.lastKey();
 		double runningTotal = 0;
 		
@@ -53,7 +57,7 @@ public class Statistics {
 			log.trace(ratio+" "+stats.lowerKey(time)+" "+time);
 			
 			MomentStatistics lower = stats.lowerEntry(time).getValue();
-			if(lower.getVmsUp()==0){
+			if(lower.getVmsUp()<minVmsUp){
 			}
 			else{
 				runningTotal+=ratio;

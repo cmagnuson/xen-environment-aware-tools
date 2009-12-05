@@ -1,14 +1,18 @@
 package com.magnuson.xen.faulttolerence.simulation;
 
+import com.magnuson.xen.faulttolerence.simulation.events.*;
+
 public class MomentStatistics {
 
 	private int vmsUp;
 	private int vmsDown;
 	private int machinesUp;
 	private int machinesDown;
+	private Event event;
 
-	public MomentStatistics(){
+	public MomentStatistics(Event e){
 		super();
+		event = e;
 		vmsUp = 0;
 		vmsDown = 0;
 		machinesUp = 0;
@@ -48,6 +52,8 @@ public class MomentStatistics {
 	public void setMachinesDown(int machinesDown) {
 		this.machinesDown = machinesDown;
 	}
-	
+	public Event getEvent(){
+		return event;
+	}
 	
 }
