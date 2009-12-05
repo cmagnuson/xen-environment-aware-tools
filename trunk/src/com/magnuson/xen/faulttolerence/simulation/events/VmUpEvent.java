@@ -25,11 +25,12 @@ public class VmUpEvent extends Event {
 		else{
 			if(SimulationManager.xq.getPhysicalMachines().size()<1){
 				//no available physical machines, wait for one to be up
-				t.addEvent(new VmUpEvent(pm, vm), (long)(2.0*Math.random()*(double)SimulationManager.AVG_VIRTUAL_REBOOT_TIME));
+				t.addEvent(new VmUpEvent(pm, vm), (long)(2.0*Math.random()*SimulationManager.AVG_VIRTUAL_REBOOT_TIME));
 			}
 			else{
-				//move to first available physical machine
-				SimulationManager.xq.migrateVirtualMachine(vm, pm, SimulationManager.xq.getPhysicalMachines().get(0));
+				//move to random available physical machine
+				int physicalMachine = (int)(Math.floor(Math.random()*SimulationManager.xq.getPhysicalMachines().size()));
+				SimulationManager.xq.addVirtualMachine(vm, SimulationManager.xq.getPhysicalMachines().get(physicalMachine));
 			}
 		}
 	}

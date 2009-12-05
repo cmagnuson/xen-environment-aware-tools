@@ -13,8 +13,11 @@ public class Timeline {
 	private long currentTime = 0;
 	private Statistics statistics = new Statistics();
 
+	//not nessisary, just for performance - saves on unneeded balancings
+	private boolean balanced = false;
+
 	static int eventNum = 0;
-	
+
 	public Timeline(){}
 
 	public void addEvent(Event e, long scheduledOffset){
@@ -36,12 +39,25 @@ public class Timeline {
 	private void executeNextEvent(){		
 		Event e = timeline.poll();
 		currentTime = e.getExecutionTime();
-
 		eventNum++;
+
+		if(e instanceof BalancingEvent){
+			if(balanced){
+				((BalancingEvent)e).scheduleNext(this);
+				return;
+			}
+			else{
+				balanced = true;
+			}
+		}
+		else{
+			balanced = false;
+		}
+
 		log.debug(eventNum+" Executing: "+e);
 		e.execute(this);
-		
-		updateStatistics();
+
+		updateStatistics(e);
 	}
 
 	public Statistics executeAll(){
@@ -51,8 +67,8 @@ public class Timeline {
 		return statistics;
 	}
 
-	private void updateStatistics(){
-		MomentStatistics ms = new MomentStatistics();
+	private void updateStatistics(Event e){
+		MomentStatistics ms = new MomentStatistics(e);
 		ms.setMachinesUp(SimulationManager.xq.getPhysicalMachines().size());
 		ms.setMachinesDown(SimulationManager.TOTAL_PHYSICAL_MACHINES-ms.getMachinesUp());
 		int vmsUp = 0;
@@ -64,4 +80,7 @@ public class Timeline {
 		statistics.addMomentStats(currentTime, ms);
 	}
 
+	public long getTime(){
+		return currentTime;
+	}
 }
