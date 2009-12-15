@@ -2,14 +2,21 @@ package com.magnuson.xen.faulttolerence.simulation.events;
 
 import com.magnuson.xen.faulttolerence.simulation.SimulationManager;
 import com.magnuson.xen.faulttolerence.simulation.Timeline;
+import com.magnuson.xen.faulttolerence.*;
 
 public class BalancingEvent extends Event {
 
+	
+	private Balancer balancer;
+	
+	public BalancingEvent(Balancer b){
+		this.balancer = b;
+	}
 
 	@Override
 	public void execute(Timeline t) {
 
-		SimulationManager.balancer.calculateAndMigrate();
+		balancer.calculateAndMigrate();
 		scheduleNext(t);
 	}
 
@@ -34,7 +41,7 @@ public class BalancingEvent extends Event {
 			nextBalancing = SimulationManager.MANUAL_MIGRATE_POLL_RATE; 
 		}
 
-		t.addEvent(new BalancingEvent(), nextBalancing);
+		t.addEvent(new BalancingEvent(balancer), nextBalancing);
 	}
 
 }
