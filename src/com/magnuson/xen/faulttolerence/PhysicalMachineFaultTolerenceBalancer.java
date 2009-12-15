@@ -5,17 +5,17 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 
-public class FaultTolerenceBalancer {
+public class PhysicalMachineFaultTolerenceBalancer implements Balancer {
 
-	static Logger log = Logger.getLogger(FaultTolerenceBalancer.class);
+	static Logger log = Logger.getLogger(PhysicalMachineFaultTolerenceBalancer.class);
 
 	private FaultTolerentQueryInterface faultQuery;
 	private XenQueryHandlerInterface xenQuery;
 
 	@SuppressWarnings("unused")
-	private FaultTolerenceBalancer(){}
+	private PhysicalMachineFaultTolerenceBalancer(){}
 
-	public FaultTolerenceBalancer(FaultTolerentQueryInterface fq, XenQueryHandlerInterface xq){
+	public PhysicalMachineFaultTolerenceBalancer(FaultTolerentQueryInterface fq, XenQueryHandlerInterface xq){
 		this.faultQuery=fq;
 		this.xenQuery=xq;
 	}
@@ -32,28 +32,37 @@ public class FaultTolerenceBalancer {
 	private List<MigrationDecision> calculate(FaultSet fs){
 		LinkedList<MigrationDecision> migrations = new LinkedList<MigrationDecision>();
 
+		int freeMachines = 0;
+		
 		//make a tally list for each physical machine
 		HashMap<PhysicalMachine,Integer> currentMapping = new HashMap<PhysicalMachine,Integer>();
 		for(PhysicalMachine pm: xenQuery.getPhysicalMachines()){
-			currentMapping.put(pm, 0);
+			if(pm.getSwitch().hasInternetConnection()){
+				currentMapping.put(pm, 0);
+				freeMachines++;
+			}
 		}
 
+		
 		//tally number of vms in set per machine
 		for(VirtualMachine vm: fs.getVirtualMachines()){
 			PhysicalMachine pm = xenQuery.getPhysicalMachine(vm.getPhysicalMachineMACAddress());
 			//add to currently assigned mapping if machine is up
-			if(pm!=null){
+			if(pm!=null	 && pm.getSwitch().hasInternetConnection()){
 				currentMapping.put(pm, currentMapping.get(pm)+1);
 			}
 		}
 
-		int freeMachines = xenQuery.getPhysicalMachines().size();
 		int vmCount = countLiveVms(fs);
 		double idealBalancing = (double)vmCount/(double)freeMachines;
 		log.debug("Beginning Balancing Kernel, initial ideal balancing: "+idealBalancing);
 		VirtualMachine donation=null;
 		LinkedList<VirtualMachine> migrated = new LinkedList<VirtualMachine>();
 
+		if(freeMachines<=1){
+			return migrations;
+		}
+		
 		while(!currentMapping.isEmpty()){
 			Iterator<PhysicalMachine> it = currentMapping.keySet().iterator();
 			while(it.hasNext()){
@@ -131,7 +140,8 @@ public class FaultTolerenceBalancer {
 	private int countLiveVms(FaultSet fs){
 		int count = 0;
 		for(VirtualMachine vm: fs.getVirtualMachines()){
-			if(xenQuery.getVirtualMachine(vm.getMACAddress())!=null && xenQuery.getPhysicalMachine(vm.getPhysicalMachineMACAddress())!=null){
+			if(xenQuery.getVirtualMachine(vm.getMACAddress())!=null && xenQuery.getPhysicalMachine(vm.getPhysicalMachineMACAddress())!=null &&
+					xenQuery.getPhysicalMachine(vm.getPhysicalMachineMACAddress()).getSwitch().hasInternetConnection()){
 				count++;
 			}
 		}

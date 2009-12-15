@@ -16,7 +16,7 @@ public class FaultTolerenceBalancerTests extends TestCase {
 		
 	private XenQueryHandlerInterface xq;
 	private FaultTolerentQueryInterface ft;
-	private FaultTolerenceBalancer balancer;
+	private PhysicalMachineFaultTolerenceBalancer balancer;
 
 	private static final int RANDOM_RUNS = 1000;
 	private static final int RANDOM_VM_AVG = 100;
@@ -33,7 +33,7 @@ public class FaultTolerenceBalancerTests extends TestCase {
 
 		xq = new SimulatedQueryHandler();
 		ft = new SimulatedFaultTolerentQueryHandler();
-		balancer = new FaultTolerenceBalancer(ft,xq);
+		balancer = new PhysicalMachineFaultTolerenceBalancer(ft,xq);
 	}
 
 	protected void tearDown() throws Exception {
@@ -44,12 +44,13 @@ public class FaultTolerenceBalancerTests extends TestCase {
 		for(int run=0; run<RANDOM_RUNS; run++){
 			xq = new SimulatedQueryHandler();
 			ft = new SimulatedFaultTolerentQueryHandler();
-			balancer = new FaultTolerenceBalancer(ft,xq);
+			balancer = new PhysicalMachineFaultTolerenceBalancer(ft,xq);
+			Switch swi = new Switch("SW:A", new InternetGateway(), 1.0);
 
 			for(int i=0; i<RANDOM_PM_AVG*2; i++){
 				//50/50 chance to make new machine
 				if(Math.random()>.5){
-					PhysicalMachine pm = new PhysicalMachine(("P"+i));
+					PhysicalMachine pm = new PhysicalMachine(("P"+i), swi, 0.999);
 					xq.addPhysicalMachine(pm);
 				}
 			}
@@ -92,12 +93,13 @@ public class FaultTolerenceBalancerTests extends TestCase {
 	public void testPlannedMigrateDecision(){
 		xq = new SimulatedQueryHandler();
 		ft = new SimulatedFaultTolerentQueryHandler();
-		balancer = new FaultTolerenceBalancer(ft,xq);
+		balancer = new PhysicalMachineFaultTolerenceBalancer(ft,xq);
+		Switch swi = new Switch("SW:A", new InternetGateway(), 1.0);
 
-		PhysicalMachine pm = new PhysicalMachine("A");
-		PhysicalMachine pm2 = new PhysicalMachine("B");
-		PhysicalMachine pm3 = new PhysicalMachine("C");
-		PhysicalMachine pm4 = new PhysicalMachine("D");
+		PhysicalMachine pm = new PhysicalMachine("A", swi, 0.999);
+		PhysicalMachine pm2 = new PhysicalMachine("B", swi, 0.999);
+		PhysicalMachine pm3 = new PhysicalMachine("C", swi, 0.999);
+		PhysicalMachine pm4 = new PhysicalMachine("D", swi, 0.999);
 
 		VirtualMachine vm1 = new VirtualMachine("V1");
 		VirtualMachine vm2 = new VirtualMachine("V2");

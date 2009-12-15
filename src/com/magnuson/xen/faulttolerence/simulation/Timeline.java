@@ -73,7 +73,9 @@ public class Timeline {
 		ms.setMachinesDown(SimulationManager.TOTAL_PHYSICAL_MACHINES-ms.getMachinesUp());
 		int vmsUp = 0;
 		for(PhysicalMachine pm: SimulationManager.xq.getPhysicalMachines()){
-			vmsUp += pm.getVirtualMachines().size();
+			if(pm.getSwitch().hasInternetConnection()){
+				vmsUp += pm.getVirtualMachines().size();
+			}
 		}
 		ms.setVmsUp(vmsUp);
 		ms.setVmsDown(SimulationManager.TOTAL_VMS-ms.getVmsUp());
