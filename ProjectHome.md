@@ -1,0 +1,1 @@
+Assuming knowledge of physical machines, vms and network, some tools for interesting uses
